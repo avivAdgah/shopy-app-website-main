@@ -1,5 +1,7 @@
 # Shoply
 
+> **Demo App** — a small portfolio/demo project, not a production system.
+
 A small online shop built with React, Vite, Tailwind CSS, and React Router.
 
 ## Features
