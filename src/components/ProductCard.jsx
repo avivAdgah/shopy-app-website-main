@@ -56,14 +56,14 @@ export default function ProductCard({ product }) {
           {product.name}
         </Link>
         {typeof product.rating === 'number' && <Rating value={product.rating} count={product.reviewCount} />}
-        <div className="mt-auto flex items-center justify-between pt-3">
-          <div className="flex items-baseline gap-2">
+        <div className="mt-auto flex flex-col gap-2 pt-3">
+          <div className="flex flex-wrap items-baseline gap-x-2">
             <span className="text-lg font-semibold text-gray-900">${product.price.toFixed(2)}</span>
             {isOnSale && (
               <span className="text-sm text-gray-400 line-through">${product.compareAtPrice.toFixed(2)}</span>
             )}
           </div>
-          <Button size="sm" onClick={handleAddToCart} aria-label={`Add ${product.name} to cart`}>
+          <Button size="sm" onClick={handleAddToCart} aria-label={`Add ${product.name} to cart`} className="w-full">
             Add
           </Button>
         </div>

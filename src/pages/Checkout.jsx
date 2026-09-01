@@ -129,7 +129,7 @@ export default function Checkout() {
             </div>
 
             <div className="border-t border-gray-100 pt-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                   <CreditCard className="h-5 w-5 text-primary-600" aria-hidden="true" />
                   Payment
