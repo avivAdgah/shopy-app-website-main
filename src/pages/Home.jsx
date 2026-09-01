@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import clsx from 'clsx'
-import { ArrowRight, RotateCcw, ShieldCheck, Sparkles, Truck } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, RotateCcw, ShieldCheck, Sparkles, Truck } from 'lucide-react'
 import { CATEGORIES, PRODUCTS } from '../data/products.js'
 import { useCart } from '../context/CartContext.jsx'
 import ProductCard from '../components/ProductCard.jsx'
@@ -31,17 +31,39 @@ const CATEGORY_COLORS = {
 function HeroCollage() {
   const entries = Object.entries(CATEGORY_IMAGES)
   const [index, setIndex] = useState(0)
+  const touchStartX = useRef(null)
 
   useEffect(() => {
-    const id = setInterval(() => {
+    const id = setTimeout(() => {
       setIndex((current) => (current + 1) % entries.length)
     }, 3000)
-    return () => clearInterval(id)
-  }, [entries.length])
+    return () => clearTimeout(id)
+  }, [index, entries.length])
+
+  const goTo = (target) => setIndex(((target % entries.length) + entries.length) % entries.length)
+  const goToPrev = () => goTo(index - 1)
+  const goToNext = () => goTo(index + 1)
+
+  const handleTouchStart = (event) => {
+    touchStartX.current = event.touches[0].clientX
+  }
+
+  const handleTouchEnd = (event) => {
+    if (touchStartX.current === null) return
+    const deltaX = event.changedTouches[0].clientX - touchStartX.current
+    touchStartX.current = null
+    if (Math.abs(deltaX) < 40) return
+    if (deltaX > 0) goToPrev()
+    else goToNext()
+  }
 
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden rounded-2xl shadow-glow lg:hidden">
+      <div
+        className="relative aspect-square overflow-hidden rounded-2xl shadow-glow lg:hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {entries.map(([category, image], i) => (
           <img
             key={category}
@@ -53,15 +75,41 @@ function HeroCollage() {
             )}
           />
         ))}
+
+        <button
+          type="button"
+          onClick={goToPrev}
+          aria-label="Previous image"
+          className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-sm backdrop-blur transition-colors hover:bg-white"
+        >
+          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={goToNext}
+          aria-label="Next image"
+          className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-sm backdrop-blur transition-colors hover:bg-white"
+        >
+          <ChevronRight className="h-5 w-5" aria-hidden="true" />
+        </button>
+
         <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
           {entries.map(([category], i) => (
-            <span
+            <button
               key={category}
-              className={clsx(
-                'h-1.5 rounded-full transition-all',
-                i === index ? 'w-5 bg-white' : 'w-1.5 bg-white/60',
-              )}
-            />
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`Show ${category} image`}
+              aria-current={i === index}
+              className="p-1"
+            >
+              <span
+                className={clsx(
+                  'block h-1.5 rounded-full transition-all',
+                  i === index ? 'w-5 bg-white' : 'w-1.5 bg-white/60',
+                )}
+              />
+            </button>
           ))}
         </div>
       </div>
