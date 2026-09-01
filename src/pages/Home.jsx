@@ -101,11 +101,8 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            {Object.entries(CATEGORY_IMAGES).map(([category, image], index) => (
-              <div
-                key={category}
-                className={`overflow-hidden rounded-2xl shadow-glow ${index === 0 ? 'col-span-2 aspect-[2/1]' : 'aspect-square'}`}
-              >
+            {Object.entries(CATEGORY_IMAGES).map(([category, image]) => (
+              <div key={category} className="aspect-square overflow-hidden rounded-2xl shadow-glow">
                 <img src={image} alt={category} className="h-full w-full object-cover" />
               </div>
             ))}
