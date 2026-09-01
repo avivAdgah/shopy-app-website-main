@@ -14,12 +14,18 @@ export default function Navbar() {
   const { itemCount } = useCart()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [mobileSearchValue, setMobileSearchValue] = useState('')
 
+  const closeMobileMenu = () => {
+    setMenuOpen(false)
+    setCategoriesOpen(false)
+  }
+
   const handleLogout = () => {
     logout()
-    setMenuOpen(false)
+    closeMobileMenu()
     navigate('/')
   }
 
@@ -36,7 +42,7 @@ export default function Navbar() {
   const handleMobileSearchSubmit = (event) => {
     event.preventDefault()
     submitSearch(mobileSearchValue)
-    setMenuOpen(false)
+    closeMobileMenu()
   }
 
   const linkClass = ({ isActive }) =>
@@ -154,7 +160,10 @@ export default function Navbar() {
           </Link>
           <button
             type="button"
-            onClick={() => setMenuOpen((open) => !open)}
+            onClick={() => {
+              setMenuOpen((open) => !open)
+              setCategoriesOpen(false)
+            }}
             className="rounded-lg p-2 text-gray-600 hover:bg-gray-100"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
@@ -187,36 +196,48 @@ export default function Navbar() {
                   to={link.to}
                   end={link.end}
                   className={mobileLinkClass}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   {link.label}
                 </NavLink>
               ))}
-              <NavLink to="/shop" end className={mobileLinkClass} onClick={() => setMenuOpen(false)}>
-                Shop
+              <NavLink to="/shop" end className={mobileLinkClass} onClick={closeMobileMenu}>
+                Shop all
               </NavLink>
-            </nav>
 
-            <div className="mt-1 rounded-xl bg-gray-50 p-3">
-              <p className="px-0.5 text-xs font-semibold uppercase tracking-wide text-gray-400">Categories</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {CATEGORIES.map((category) => (
-                  <Link
-                    key={category}
-                    to={`/shop?category=${encodeURIComponent(category)}`}
-                    onClick={() => setMenuOpen(false)}
-                    className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-primary-300 hover:text-primary-700"
-                  >
-                    {category}
-                  </Link>
-                ))}
-              </div>
-            </div>
+              <button
+                type="button"
+                onClick={() => setCategoriesOpen((open) => !open)}
+                className="flex items-center justify-between rounded-xl px-3.5 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                aria-expanded={categoriesOpen}
+              >
+                Categories
+                <ChevronDown
+                  className={clsx('h-4 w-4 text-gray-400 transition-transform', categoriesOpen && 'rotate-180')}
+                  aria-hidden="true"
+                />
+              </button>
+
+              {categoriesOpen && (
+                <div className="ml-3 flex flex-col gap-0.5 border-l-2 border-gray-100 pl-3">
+                  {CATEGORIES.map((category) => (
+                    <Link
+                      key={category}
+                      to={`/shop?category=${encodeURIComponent(category)}`}
+                      onClick={closeMobileMenu}
+                      className="rounded-lg px-3 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-primary-700"
+                    >
+                      {category}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </nav>
 
             <div className="mt-4 flex flex-col gap-1 border-t border-gray-100 pt-4">
               {user ? (
                 <>
-                  <Link to="/profile" onClick={() => setMenuOpen(false)} className={mobileLinkClass({ isActive: false })}>
+                  <Link to="/profile" onClick={closeMobileMenu} className={mobileLinkClass({ isActive: false })}>
                     <User className="mr-2 h-4 w-4" aria-hidden="true" />
                     Profile ({user.name})
                   </Link>
@@ -228,14 +249,14 @@ export default function Navbar() {
                 <>
                   <Link
                     to="/login"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={closeMobileMenu}
                     className="rounded-xl border border-gray-300 px-3.5 py-3 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={closeMobileMenu}
                     className="mt-2 rounded-xl bg-primary-500 px-3.5 py-3 text-center text-sm font-medium text-white shadow-glow hover:bg-primary-600"
                   >
                     Sign up
@@ -250,7 +271,7 @@ export default function Navbar() {
       {menuOpen && (
         <div
           className="fixed inset-0 z-30 bg-gray-900/40 sm:hidden"
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMobileMenu}
           aria-hidden="true"
         />
       )}

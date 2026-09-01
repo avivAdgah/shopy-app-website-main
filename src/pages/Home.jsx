@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import clsx from 'clsx'
 import { ArrowRight, RotateCcw, ShieldCheck, Sparkles, Truck } from 'lucide-react'
 import { CATEGORIES, PRODUCTS } from '../data/products.js'
 import { useCart } from '../context/CartContext.jsx'
@@ -25,6 +26,55 @@ const CATEGORY_COLORS = {
   Fashion: 'from-accent-900/70',
   'Home & Living': 'from-amber-900/70',
   Sports: 'from-emerald-900/70',
+}
+
+function HeroCollage() {
+  const entries = Object.entries(CATEGORY_IMAGES)
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setIndex((current) => (current + 1) % entries.length)
+    }, 3000)
+    return () => clearInterval(id)
+  }, [entries.length])
+
+  return (
+    <div>
+      <div className="relative aspect-square overflow-hidden rounded-2xl shadow-glow lg:hidden">
+        {entries.map(([category, image], i) => (
+          <img
+            key={category}
+            src={image}
+            alt={category}
+            className={clsx(
+              'absolute inset-0 h-full w-full object-cover transition-opacity duration-700',
+              i === index ? 'opacity-100' : 'opacity-0',
+            )}
+          />
+        ))}
+        <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
+          {entries.map(([category], i) => (
+            <span
+              key={category}
+              className={clsx(
+                'h-1.5 rounded-full transition-all',
+                i === index ? 'w-5 bg-white' : 'w-1.5 bg-white/60',
+              )}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="hidden grid-cols-2 gap-4 lg:grid">
+        {entries.map(([category, image]) => (
+          <div key={category} className="aspect-square overflow-hidden rounded-2xl shadow-glow">
+            <img src={image} alt={category} className="h-full w-full object-cover" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 const TRUST_POINTS = [
@@ -100,13 +150,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {Object.entries(CATEGORY_IMAGES).map(([category, image]) => (
-              <div key={category} className="aspect-square overflow-hidden rounded-2xl shadow-glow">
-                <img src={image} alt={category} className="h-full w-full object-cover" />
-              </div>
-            ))}
-          </div>
+          <HeroCollage />
         </div>
       </section>
 
