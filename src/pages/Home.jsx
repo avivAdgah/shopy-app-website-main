@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import clsx from 'clsx'
-import { ArrowRight, ChevronLeft, ChevronRight, RotateCcw, ShieldCheck, Sparkles, Truck } from 'lucide-react'
+import { ArrowRight, RotateCcw, ShieldCheck, Sparkles, Truck } from 'lucide-react'
 import { CATEGORIES, PRODUCTS } from '../data/products.js'
 import { useCart } from '../context/CartContext.jsx'
 import ProductCard from '../components/ProductCard.jsx'
@@ -75,23 +75,6 @@ function HeroCollage() {
             )}
           />
         ))}
-
-        <button
-          type="button"
-          onClick={goToPrev}
-          aria-label="Previous image"
-          className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-sm backdrop-blur transition-colors hover:bg-white"
-        >
-          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          onClick={goToNext}
-          aria-label="Next image"
-          className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-sm backdrop-blur transition-colors hover:bg-white"
-        >
-          <ChevronRight className="h-5 w-5" aria-hidden="true" />
-        </button>
 
         <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
           {entries.map(([category], i) => (
