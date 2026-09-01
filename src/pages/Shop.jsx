@@ -1,8 +1,16 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { CATEGORIES, PRODUCTS } from '../data/products.js'
 import ProductCard from '../components/ProductCard.jsx'
+import Input from '../components/ui/Input.jsx'
+import Select from '../components/ui/Select.jsx'
+import Heading from '../components/ui/Heading.jsx'
+import Section from '../components/ui/Section.jsx'
+import EmptyState from '../components/EmptyState.jsx'
+import Breadcrumbs from '../components/Breadcrumbs.jsx'
+import PriceRangeFilter from '../components/PriceRangeFilter.jsx'
+import Button from '../components/ui/Button.jsx'
 
 const SORT_OPTIONS = [
   { value: 'featured', label: 'Featured' },
@@ -13,9 +21,13 @@ const SORT_OPTIONS = [
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [search, setSearch] = useState('')
   const category = searchParams.get('category') ?? 'All'
   const sort = searchParams.get('sort') ?? 'featured'
+  const search = searchParams.get('q') ?? ''
+  const minPrice = searchParams.get('minPrice') ?? ''
+  const maxPrice = searchParams.get('maxPrice') ?? ''
+
+  const hasActiveFilters = category !== 'All' || Boolean(search) || Boolean(minPrice) || Boolean(maxPrice)
 
   const setCategory = (nextCategory) => {
     const next = new URLSearchParams(searchParams)
@@ -31,6 +43,24 @@ export default function Shop() {
     setSearchParams(next)
   }
 
+  const setSearch = (nextSearch) => {
+    const next = new URLSearchParams(searchParams)
+    if (!nextSearch) next.delete('q')
+    else next.set('q', nextSearch)
+    setSearchParams(next, { replace: true })
+  }
+
+  const setPriceRange = (nextMin, nextMax) => {
+    const next = new URLSearchParams(searchParams)
+    if (!nextMin) next.delete('minPrice')
+    else next.set('minPrice', nextMin)
+    if (!nextMax) next.delete('maxPrice')
+    else next.set('maxPrice', nextMax)
+    setSearchParams(next, { replace: true })
+  }
+
+  const clearFilters = () => setSearchParams({})
+
   const products = useMemo(() => {
     let result = PRODUCTS
 
@@ -43,83 +73,106 @@ export default function Shop() {
       result = result.filter((product) => product.name.toLowerCase().includes(query))
     }
 
+    if (minPrice) result = result.filter((product) => product.price >= Number(minPrice))
+    if (maxPrice) result = result.filter((product) => product.price <= Number(maxPrice))
+
     result = [...result]
     if (sort === 'price-asc') result.sort((a, b) => a.price - b.price)
     else if (sort === 'price-desc') result.sort((a, b) => b.price - a.price)
     else if (sort === 'name-asc') result.sort((a, b) => a.name.localeCompare(b.name))
 
     return result
-  }, [category, search, sort])
+  }, [category, search, sort, minPrice, maxPrice])
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold text-gray-900">Shop all products</h1>
+    <Section>
+      <Breadcrumbs items={[{ label: 'Shop' }]} />
+
+      <div className="mt-4 flex flex-col gap-2">
+        <Heading level={1}>Shop all products</Heading>
         <p className="text-sm text-gray-500">{products.length} products</p>
       </div>
 
-      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search products…"
-            aria-label="Search products by name"
-            className="w-full rounded-xl border border-gray-300 py-2.5 pl-9 pr-3 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor="sort" className="sr-only">
-            Sort products
-          </label>
-          <select
-            id="sort"
-            value={sort}
-            onChange={(event) => setSort(event.target.value)}
-            className="rounded-xl border border-gray-300 py-2.5 pl-3 pr-8 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="mt-6 w-full sm:max-w-xs">
+        <Input
+          id="search"
+          type="search"
+          icon={Search}
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search products…"
+          aria-label="Search products by name"
+        />
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
-        {['All', ...CATEGORIES].map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setCategory(cat)}
-            aria-pressed={category === cat}
-            className={
-              category === cat
-                ? 'rounded-full bg-primary-500 px-4 py-1.5 text-sm font-medium text-white'
-                : 'rounded-full border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100'
-            }
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[220px_1fr]">
+        <aside className="flex flex-col gap-6">
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-gray-900">Category</h3>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="text-xs font-medium text-primary-600 hover:text-primary-700"
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+            <div className="mt-3 flex flex-col gap-1">
+              {['All', ...CATEGORIES].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  aria-pressed={category === cat}
+                  className={
+                    category === cat
+                      ? 'rounded-lg bg-primary-50 px-3 py-2 text-left text-sm font-medium text-primary-700'
+                      : 'rounded-lg px-3 py-2 text-left text-sm font-medium text-gray-600 hover:bg-gray-100'
+                  }
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {products.length === 0 ? (
-        <div className="mt-16 flex flex-col items-center text-center">
-          <p className="text-lg font-medium text-gray-900">No products found</p>
-          <p className="mt-1 text-sm text-gray-500">Try a different search term or category.</p>
+          <PriceRangeFilter min={minPrice} max={maxPrice} onChange={setPriceRange} />
+        </aside>
+
+        <div>
+          <div className="flex items-center justify-end gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <label htmlFor="sort" className="sr-only">
+                Sort products
+              </label>
+              <Select id="sort" value={sort} onChange={(event) => setSort(event.target.value)}>
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </div>
+
+          {products.length === 0 ? (
+            <EmptyState icon={Search} title="No products found" description="Try a different search term or category.">
+              <Button variant="secondary" className="mt-6" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            </EmptyState>
+          ) : (
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
-    </div>
+      </div>
+    </Section>
   )
 }

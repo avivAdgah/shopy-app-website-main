@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Minus, Plus, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useCart } from '../context/CartContext.jsx'
+import QuantityStepper from './QuantityStepper.jsx'
 
 export default function CartItemRow({ item }) {
   const { updateQuantity, removeItem } = useCart()
@@ -21,27 +22,13 @@ export default function CartItemRow({ item }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center rounded-xl border border-gray-300">
-          <button
-            type="button"
-            onClick={() => updateQuantity(product.id, quantity - 1)}
-            className="p-2 text-gray-600 hover:text-gray-900"
-            aria-label={`Decrease quantity of ${product.name}`}
-          >
-            <Minus className="h-4 w-4" />
-          </button>
-          <span className="w-8 text-center text-sm font-medium" aria-live="polite">
-            {quantity}
-          </span>
-          <button
-            type="button"
-            onClick={() => updateQuantity(product.id, quantity + 1)}
-            className="p-2 text-gray-600 hover:text-gray-900"
-            aria-label={`Increase quantity of ${product.name}`}
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
+        <QuantityStepper
+          value={quantity}
+          onDecrease={() => updateQuantity(product.id, quantity - 1)}
+          onIncrease={() => updateQuantity(product.id, quantity + 1)}
+          decreaseLabel={`Decrease quantity of ${product.name}`}
+          increaseLabel={`Increase quantity of ${product.name}`}
+        />
 
         <span className="w-20 text-right font-semibold text-gray-900">${subtotal.toFixed(2)}</span>
 

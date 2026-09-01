@@ -6,7 +6,7 @@ export default function CartSummary({ children }) {
   const { subtotal, discount, discountRate, shipping, total, freeShippingThreshold } = useCart()
 
   return (
-    <Card className="p-6">
+    <Card>
       <h2 className="text-lg font-semibold text-gray-900">Order summary</h2>
 
       <dl className="mt-4 flex flex-col gap-2 text-sm">

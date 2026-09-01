@@ -3,16 +3,23 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ShoppingCart } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useCart } from '../context/CartContext.jsx'
+import { PRODUCTS } from '../data/products.js'
 import CartItemRow from '../components/CartItemRow.jsx'
 import CartSummary from '../components/CartSummary.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import ProductCard from '../components/ProductCard.jsx'
 import Button from '../components/ui/Button.jsx'
 import Input from '../components/ui/Input.jsx'
+import Heading from '../components/ui/Heading.jsx'
+import Section from '../components/ui/Section.jsx'
+import Breadcrumbs from '../components/Breadcrumbs.jsx'
 
 export default function Cart() {
   const { items, couponCode, applyCoupon } = useCart()
   const navigate = useNavigate()
   const [couponInput, setCouponInput] = useState(couponCode)
+  const cartProductIds = new Set(items.map((item) => item.productId))
+  const upsellProducts = PRODUCTS.filter((product) => !cartProductIds.has(product.id)).slice(0, 4)
 
   const handleApplyCoupon = (event) => {
     event.preventDefault()
@@ -34,8 +41,11 @@ export default function Cart() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Your cart</h1>
+    <Section size="lg">
+      <Breadcrumbs items={[{ label: 'Cart' }]} />
+      <Heading level={1} className="mt-4 !text-2xl">
+        Your cart
+      </Heading>
 
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -70,6 +80,17 @@ export default function Cart() {
           </CartSummary>
         </div>
       </div>
-    </div>
+
+      {upsellProducts.length > 0 && (
+        <div className="mt-16">
+          <Heading level={3}>You might also like</Heading>
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
+            {upsellProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      )}
+    </Section>
   )
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import Button from './ui/Button.jsx'
 
-export default function EmptyState({ icon: Icon, title, description, actionLabel, actionTo }) {
+export default function EmptyState({ icon: Icon, title, description, actionLabel, actionTo, children }) {
   return (
     <div className="flex flex-col items-center px-4 py-20 text-center">
       {Icon && (
@@ -17,6 +17,7 @@ export default function EmptyState({ icon: Icon, title, description, actionLabel
           {actionLabel}
         </Button>
       )}
+      {children}
     </div>
   )
 }
